@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>隧道衬砌渗漏水点位电子档案</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#eef2f7;color:#1e293b;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","PingFang SC",sans-serif;-webkit-text-size-adjust:100%;font-size:15px}
+.container{max-width:900px;margin:0 auto;padding:12px 14px 40px}
+.header{background:linear-gradient(135deg,#0f3b6a,#1a5a9e);color:#fff;border-radius:16px;padding:24px 18px;margin-bottom:14px;text-align:center}
+.header h1{margin:0 0 6px;font-size:20px;letter-spacing:.5px}
+.header p{margin:0;font-size:13px;opacity:.88}
+.card{background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.card h2{font-size:16px;margin:0 0 12px;padding-bottom:8px;border-bottom:2px solid #e8edf3;color:#0f3b6a}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:600px){.grid{grid-template-columns:1fr}}
+label{display:block;font-size:13px;margin-bottom:4px;color:#475569;font-weight:500}
+input,select,textarea{width:100%;padding:10px 12px;border:1px solid #d1d9e6;border-radius:8px;font-size:14px;background:#f9fafb;color:#1e293b;transition:border .2s;-webkit-appearance:none}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#3b82f6;background:#fff}
+textarea{min-height:72px;resize:vertical}
+button{border:0;border-radius:10px;padding:11px 16px;font-size:14px;font-weight:600;color:#fff;cursor:pointer;transition:opacity .15s}
+button:active{opacity:.85}
+button.primary{background:#2563eb}
+button.gray{background:#64748b}
+button.green{background:#16a34a}
+button.red{background:#dc2626}
+button.amber{background:#d97706}
+.btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.btn-row button{flex:1;min-width:100px}
+.result-box{margin-top:10px;background:#f0f7ff;border:1px solid #b9d5fd;border-radius:10px;padding:12px;font-size:14px;line-height:1.7}
+.result-box b{color:#0f3b6a}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;color:#fff;font-size:12px;font-weight:700;margin-left:4px}
+.badge-ok{background:#16a34a}
+.badge-warn{background:#d97706}
+.badge-danger{background:#dc2626}
+.badge-muted{background:#94a3b8}
+.history-item{border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;margin-top:8px;background:#fafbfd;font-size:13px;line-height:1.7}
+.history-item .row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.history-item .del-btn{background:#fee2e2;color:#dc2626;padding:4px 10px;font-size:12px;border-radius:6px;cursor:pointer;border:0}
+.footer-note{text-align:center;margin-top:20px;font-size:12px;color:#94a3b8}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:10px 24px;border-radius:10px;font-size:14px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>隧道衬砌渗漏水点位电子档案</h1>
+<p>二维码扫码建档 | 现场计量 | 复检对比 | 状态判断</p>
+</div>
+
+<div class="card"><h2>一、点位基础信息</h2>
+<div class="grid">
+<div><label>渗漏点位名称</label><input id="pointName" placeholder="例：右线K12+345右拱腰渗漏点01"></div>
+<div><label>贴片 / 二维码编号</label><input id="patchId" placeholder="例：LD-K12-345-RY-001"></div>
+<div><label>隧道名称</label><input id="tunnelName" placeholder="例：XX隧道"></div>
+<div><label>线路方向</label><select id="lineDirection"><option value="">请选择</option><option>左线</option><option>右线</option><option>上行线</option><option>下行线</option><option>单洞双向</option></select></div>
+<div><label>里程桩号</label><input id="mileage" placeholder="例：K12+345"></div>
+<div><label>断面位置</label><select id="sectionPosition"><option value="">请选择</option><option>拱顶</option><option>左拱肩</option><option>右拱肩</option><option>左拱腰</option><option>右拱腰</option><option>左边墙</option><option>右边墙</option><option>仰拱边墙交界</option><option>施工缝</option><option>裂缝伴水位置</option></select></div>
+<div><label>发现时间</label><input id="foundTime" type="datetime-local"></div>
+<div><label>发现人员</label><input id="foundBy" placeholder="填写巡检人员姓名"></div>
+</div>
+<label style="margin-top:10px">点位描述</label>
+<textarea id="locationDesc" placeholder="例：右线K12+345，右拱腰位置，距检修道约1.1m，表面存在片状湿痕。"></textarea>
+</div>
+
+<div class="card"><h2>二、初次计量信息</h2>
+<div class="grid">
+<div><label>渗漏类型</label><select id="leakType"><option value="">请选择</option><option>湿痕</option><option>轻微渗水</option><option>间歇滴水</option><option>连续滴水</option><option>线流</option><option>明显流水</option></select></div>
+<div><label>贴片规格</label><select id="patchSpec"><option value="">请选择</option><option>小规格计量管</option><option>中规格计量袋</option><option>大规格集水腔</option><option>其他</option></select></div>
+<div><label>计量开始时间</label><input id="measureStart" type="datetime-local"></div>
+<div><label>计量结束时间</label><input id="measureEnd" type="datetime-local"></div>
+<div><label>计量时长 t (min)</label><input id="measureT" type="number" step="0.1" placeholder="计量持续时间"></div>
+<div><label>收集水量 V (mL)</label><input id="measureV" type="number" step="0.1" placeholder="收集到的水量"></div>
+<div><label>滴水次数 n (次)</label><input id="dripN" type="number" step="1" placeholder="可选"></div>
+<div><label>湿痕面积 A1 (m²)</label><input id="areaA1" type="number" step="0.01" placeholder="可选"></div>
+</div></div>
+
+<div class="card"><h2>三、复检信息</h2>
+<div class="grid">
+<div><label>复检时间</label><input id="reviewTime" type="datetime-local"></div>
+<div><label>复检人员</label><input id="reviewBy" placeholder="填写复检人员姓名"></div>
+<div><label>复检计量时长 t2 (min)</label><input id="reviewT2" type="number" step="0.1" placeholder="复检持续时间"></div>
+<div><label>复检收集水量 V2 (mL)</label><input id="reviewV2" type="number" step="0.1" placeholder="复检收集水量"></div>
+<div><label>复检湿痕面积 A2 (m²)</label><input id="reviewAreaA2" type="number" step="0.01" placeholder="可选"></div>
+<div><label>新增湿痕或滴水点</label><select id="newLeakOrDrip"><option value="否">否</option><option value="是">是</option></select></div>
+<div><label>计量有效性</label><select id="validity"><option value="有效：贴片未脱落、未溢流、边界未漏水">有效：贴片未脱落、未溢流、边界未漏水</option><option value="异常：贴片脱落">异常：贴片脱落</option><option value="异常：计量结构溢流">异常：计量结构溢流</option><option value="异常：边界漏水">异常：边界漏水</option><option value="异常：排气不畅">异常：排气不畅</option><option value="异常：读数不清">异常：读数不清</option></select></div>
+<div><label>处置建议</label><select id="treatment"><option value="">请选择</option><option>继续观察</option><option>缩短复检周期</option><option>导排处理</option><option>注浆修复</option><option>专项检测</option></select></div>
+<div><label>备注</label><input id="remark" placeholder="可选"></div>
+</div></div>
+
+<div class="card"><h2>四、操作与计算结果</h2>
+<div class="btn-row">
+<button class="primary" onclick="App.calc()">🔍 计算结论</button>
+<button class="green" onclick="App.save()">💾 保存档案</button>
+</div>
+<div class="btn-row">
+<button class="amber" onclick="App.exportJSON()">📥 导出 JSON</button>
+<button class="gray" onclick="App.clearForm()">🗑 清空表单</button>
+</div>
+<div id="calcResult" class="result-box" style="display:none"></div>
+</div>
+
+<div class="card"><h2>五、历史复检记录</h2>
+<div id="historyBox">暂无历史记录</div></div>
+
+<div class="footer-note">数据保存在当前设备浏览器中 | 永久网址 | Gitee Pages 托管</div>
+</div>
+
+<script>
+var App = (function() {
+  var $ = function(id) { return document.getElementById(id); };
+  var val = function(id) { return $(id).value.trim(); };
+  var num = function(id) { var v = parseFloat($(id).value); return isNaN(v) ? null : v; };
+
+  var fields = ["pointName","patchId","tunnelName","lineDirection","mileage","sectionPosition","foundTime","foundBy","locationDesc","leakType","patchSpec","measureStart","measureEnd","measureT","measureV","dripN","areaA1","reviewTime","reviewBy","reviewT2","reviewV2","reviewAreaA2","newLeakOrDrip","validity","treatment","remark"];
+
+  function getKey() {
+    var pid = val("patchId");
+    var urlPid = new URLSearchParams(location.search).get("point_id");
+    return pid || urlPid || "unknown";
+  }
+
+  function loadParams() {
+    var p = new URLSearchParams(location.search);
+    var map = { point_id:"patchId", point_name:"pointName", tunnel:"tunnelName", line:"lineDirection", mileage:"mileage", section:"sectionPosition" };
+    Object.keys(map).forEach(function(k) { var v = p.get(k); if(v) $(map[k]).value = v; });
+  }
+
+  function loadHistory() {
+    var key = "leakage_" + getKey();
+    var list = JSON.parse(localStorage.getItem(key) || "[]");
+    var box = $("historyBox");
+    if (!list.length) { box.innerHTML = "暂无历史记录"; return; }
+    box.innerHTML = list.slice().reverse().map(function(item, i) {
+      var c = item.calc || {};
+      var cls = "badge-muted";
+      var txt = c.conclusion || "";
+      if (txt.indexOf("减轻")!==-1 || txt.indexOf("稳定")!==-1) cls = "badge-ok";
+      else if (txt.indexOf("轻度")!==-1 || txt.indexOf("异常")!==-1) cls = "badge-warn";
+      else if (txt.indexOf("加重")!==-1 || txt.indexOf("维修")!==-1) cls = "badge-danger";
+      return '<div class="history-item"><div class="row"><b>#' + (list.length-i) + ' | ' + new Date(item.savedAt).toLocaleString("zh-CN") + '</b><button class="del-btn" onclick="App.del(' + i + ')">删除</button></div>点位：' + (item.pointName||"-") + ' | 编号：' + (item.patchId||"-") + '<br>Q1：' + (c.q1!==null?c.q1.toFixed(3)+" mL/min":"-") + ' | Q2：' + (c.q2!==null?c.q2.toFixed(3)+" mL/min":"-") + '<br>η：' + (c.eta!==null?c.eta.toFixed(1)+"%":"-") + ' | 结论：<span class="badge ' + cls + '">' + (c.conclusion||"-") + '</span></div>';
+    }).join("");
+  }
+
+  function calc() {
+    var t = num("measureT"), v = num("measureV"), n = num("dripN"), a1 = num("areaA1");
+    var t2 = num("reviewT2"), v2 = num("reviewV2"), a2 = num("reviewAreaA2");
+    var validity = val("validity"), newLeak = val("newLeakOrDrip");
+    if (!t || !v) { alert("请至少填写计量时长 t 和收集水量 V。"); return; }
+    var q1 = v / t, f = n !== null ? n / t : null;
+    var html = "<b>初次单位时间出水量 Q1：</b>" + q1.toFixed(3) + " mL/min<br>";
+    if (f !== null) html += "<b>滴水频率 f：</b>" + f.toFixed(2) + " 次/min<br>";
+    var q2 = null, eta = null, areaR = null, conclusion = "初次建档", cls = "badge-muted";
+    if (t2 && v2) {
+      q2 = v2 / t2; eta = ((q2 - q1) / q1) * 100;
+      html += "<b>复检单位时间出水量 Q2：</b>" + q2.toFixed(3) + " mL/min<br><b>出水量变化率 η：</b>" + eta.toFixed(1) + " %<br>";
+      if (a1 !== null && a2 !== null && a1 > 0) { areaR = ((a2 - a1) / a1) * 100; html += "<b>湿痕面积变化率 ΔA：</b>" + areaR.toFixed(1) + " %<br>"; }
+      if (validity.indexOf("异常") !== -1) { conclusion = "计量异常，建议重新安装贴片复测"; cls = "badge-warn"; }
+      else if (newLeak === "是") { conclusion = "渗漏加重，建议维修或专项检查"; cls = "badge-danger"; }
+      else if (eta > 50) { conclusion = "明显加重，建议维修"; cls = "badge-danger"; }
+      else if (eta > 20) { conclusion = "轻度加重，建议缩短复检周期"; cls = "badge-warn"; }
+      else if (eta < -20) { conclusion = "渗漏减轻"; cls = "badge-ok"; }
+      else { conclusion = "基本稳定，建议继续观察"; cls = "badge-ok"; }
+    }
+    html += "<b>复检结论：</b><span class='badge " + cls + "'>" + conclusion + "</span>";
+    var box = $("calcResult"); box.innerHTML = html; box.style.display = "block";
+  }
+
+  function collect() {
+    var data = {}; fields.forEach(function(id) { data[id] = val(id); });
+    var t = num("measureT"), v = num("measureV"), n = num("dripN"), a1 = num("areaA1");
+    var t2 = num("reviewT2"), v2 = num("reviewV2"), a2 = num("reviewAreaA2");
+    var validity = val("validity"), newLeak = val("newLeakOrDrip");
+    var q1 = null, q2 = null, f = null, eta = null, areaR = null, conclusion = "初次建档";
+    if (t && v) { q1 = v / t; if (n !== null) f = n / t;
+      if (t2 && v2) { q2 = v2 / t2; eta = ((q2 - q1) / q1) * 100; if (a1 !== null && a2 !== null && a1 > 0) areaR = ((a2 - a1) / a1) * 100;
+        if (validity.indexOf("异常")!==-1) conclusion = "计量异常，建议重新安装贴片复测";
+        else if (newLeak==="是") conclusion = "渗漏加重，建议维修或专项检查";
+        else if (eta>50) conclusion = "明显加重，建议维修";
+        else if (eta>20) conclusion = "轻度加重，建议缩短复检周期";
+        else if (eta<-20) conclusion = "渗漏减轻";
+        else conclusion = "基本稳定，建议继续观察";
+      }
+    }
+    data.calc = { q1:q1, q2:q2, f:f, eta:eta, areaRate:areaR, conclusion:conclusion };
+    data.savedAt = new Date().toISOString();
+    return data;
+  }
+
+  function save() {
+    var data = collect();
+    var key = "leakage_" + getKey();
+    var list = JSON.parse(localStorage.getItem(key) || "[]");
+    list.push(data);
+    localStorage.setItem(key, JSON.stringify(list));
+    loadHistory();
+    alert("已保存到本机浏览器！");
+  }
+
+  function del(idx) {
+    if (!confirm("确认删除该条记录？")) return;
+    var key = "leakage_" + getKey();
+    var list = JSON.parse(localStorage.getItem(key) || "[]");
+    list.splice(list.length - 1 - idx, 1);
+    localStorage.setItem(key, JSON.stringify(list));
+    loadHistory();
+  }
+
+  function exportJSON() {
+    var key = "leakage_" + getKey();
+    var list = JSON.parse(localStorage.getItem(key) || "[]");
+    var blob = new Blob([JSON.stringify({point_id:getKey(),history:list},null,2)], {type:"application/json;charset=utf-8"});
+    var a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+    a.download = getKey() + ".json"; a.click(); URL.revokeObjectURL(a.href);
+  }
+
+  function clearForm() {
+    if (!confirm("确认清空当前表单？已保存记录不受影响。")) return;
+    fields.forEach(function(id) { $(id).value = ""; });
+    $("calcResult").style.display = "none";
+  }
+
+  loadParams(); loadHistory();
+  return { calc:calc, save:save, del:del, exportJSON:exportJSON, clearForm:clearForm };
+})();
+</script>
+</body>
+</html>
