@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>隧道衬砌渗漏水点位电子档案</title>
+<title>GeoTun-隧道衬砌渗漏水点位电子档案</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#eef2f7;color:#1e293b;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","PingFang SC",sans-serif;-webkit-text-size-adjust:100%;font-size:15px}
@@ -41,7 +41,49 @@ button.amber{background:#d97706}
 .footer-note{text-align:center;margin-top:20px;font-size:12px;color:#94a3b8}
 .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:10px 24px;border-radius:10px;font-size:14px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none}
 .toast.show{opacity:1}
+
+
 </style>
+
+/* ====== 计算面板 ====== */
+.calc-panel{margin-top:12px;border-radius:10px;padding:12px 14px;font-size:14px;line-height:1.8;display:none}
+.calc-panel.show{display:block}
+.calc-panel.initial{background:#f0f7ff;border:1px solid #b9d5fd}
+.calc-panel.review{background:#fefce8;border:1px solid #fde68a}
+.calc-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px dashed #e2e8f0}
+.calc-row:last-child{border-bottom:none}
+.calc-label{color:#64748b;font-size:13px}
+.calc-value{font-weight:600;font-size:14px}
+.calc-panel .highlight{font-size:16px;font-weight:700;color:#2563eb}
+/* ====== 建议卡片 ====== */
+.advice-card{margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;line-height:1.6;display:none}
+.advice-card.show{display:block}
+.advice-card.ok{background:#dcfce7;border:1px solid #86efac;color:#166534}
+.advice-card.warn{background:#fef9c3;border:1px solid #fde047;color:#854d0e}
+.advice-card.danger{background:#fee2e2;border:1px solid #fca5a5;color:#991b1b}
+.advice-card.info{background:#dbeafe;border:1px solid #93c5fd;color:#1e40af}
+/* ====== 处理记录区 ====== */
+.treatment-section{margin-top:12px;padding:12px;background:#f8fafc;border:2px dashed #cbd5e1;border-radius:10px;display:none}
+.treatment-section.show{display:block}
+.treatment-section h3{font-size:15px;color:#0f3b6a;margin-bottom:10px}
+.treatment-options{display:flex;gap:10px;margin-bottom:10px}
+.treatment-options button{flex:1;padding:14px;font-size:15px;border-radius:10px;border:2px solid transparent;background:#f1f5f9;color:#475569;font-weight:600;cursor:pointer;transition:all .2s}
+.treatment-options button.selected{color:#fff}
+.treatment-options button.observe.selected{background:#16a34a;border-color:#16a34a}
+.treatment-options button.repair.selected{background:#dc2626;border-color:#dc2626}
+.treatment-options button:active{transform:scale(.97)}
+/* ====== 弹窗 ====== */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:16px;padding:20px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,.15)}
+.modal h3{font-size:17px;color:#0f3b6a;margin-bottom:14px}
+/* ====== 历史记录增强 ====== */
+.history-item .treatment-note{display:inline-block;margin-top:4px;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
+.history-item .treatment-note.observe{background:#dcfce7;color:#166534}
+.history-item .treatment-note.repair{background:#fee2e2;color:#991b1b}
+.badge-info{background:#2563eb}
+
+﻿
 </head>
 <body>
 <div class="container">
@@ -65,38 +107,72 @@ button.amber{background:#d97706}
 <textarea id="locationDesc" placeholder="例：右线K12+345，右拱腰位置，距检修道约1.1m，表面存在片状湿痕。"></textarea>
 </div>
 
-<div class="card"><h2>二、初次计量信息</h2>
-<div class="grid">
-<div><label>渗漏类型</label><select id="leakType"><option value="">请选择</option><option>湿痕</option><option>轻微渗水</option><option>间歇滴水</option><option>连续滴水</option><option>线流</option><option>明显流水</option></select></div>
-<div><label>贴片规格</label><select id="patchSpec"><option value="">请选择</option><option>小规格计量管</option><option>中规格计量袋</option><option>大规格集水腔</option><option>其他</option></select></div>
-<div><label>计量开始时间</label><input id="measureStart" type="datetime-local"></div>
-<div><label>计量结束时间</label><input id="measureEnd" type="datetime-local"></div>
-<div><label>计量时长 t (min)</label><input id="measureT" type="number" step="0.1" placeholder="计量持续时间"></div>
-<div><label>收集水量 V (mL)</label><input id="measureV" type="number" step="0.1" placeholder="收集到的水量"></div>
-<div><label>滴水次数 n (次)</label><input id="dripN" type="number" step="1" placeholder="可选"></div>
-<div><label>湿痕面积 A1 (m²)</label><input id="areaA1" type="number" step="0.01" placeholder="可选"></div>
-</div></div>
 
-<div class="card"><h2>三、复检信息</h2>
+<div class="card"><h2>二、初次计量信息 &amp; 自动计算</h2>
 <div class="grid">
-<div><label>复检时间</label><input id="reviewTime" type="datetime-local"></div>
-<div><label>复检人员</label><input id="reviewBy" placeholder="填写复检人员姓名"></div>
-<div><label>复检计量时长 t2 (min)</label><input id="reviewT2" type="number" step="0.1" placeholder="复检持续时间"></div>
-<div><label>复检收集水量 V2 (mL)</label><input id="reviewV2" type="number" step="0.1" placeholder="复检收集水量"></div>
-<div><label>复检湿痕面积 A2 (m²)</label><input id="reviewAreaA2" type="number" step="0.01" placeholder="可选"></div>
-<div><label>新增湿痕或滴水点</label><select id="newLeakOrDrip"><option value="否">否</option><option value="是">是</option></select></div>
-<div><label>计量有效性</label><select id="validity"><option value="有效：贴片未脱落、未溢流、边界未漏水">有效：贴片未脱落、未溢流、边界未漏水</option><option value="异常：贴片脱落">异常：贴片脱落</option><option value="异常：计量结构溢流">异常：计量结构溢流</option><option value="异常：边界漏水">异常：边界漏水</option><option value="异常：排气不畅">异常：排气不畅</option><option value="异常：读数不清">异常：读数不清</option></select></div>
-<div><label>处置建议</label><select id="treatment"><option value="">请选择</option><option>继续观察</option><option>缩短复检周期</option><option>导排处理</option><option>注浆修复</option><option>专项检测</option></select></div>
-<div><label>备注</label><input id="remark" placeholder="可选"></div>
-</div></div>
-
-<div class="card"><h2>四、操作与计算结果</h2>
-<div class="btn-row">
-<button class="primary" onclick="App.calc()">🔍 计算结论</button>
-<button class="green" onclick="App.save()">💾 保存档案</button>
+<div><label>渗漏类型</label><select id="leakType" onchange="App.autoCalcInit()"><option value="">请选择</option><option>湿痕</option><option>轻微渗水</option><option>间歇滴水</option><option>连续滴水</option><option>线流</option><option>明显流水</option></select></div>
+<div><label>贴片规格</label><select id="patchSpec"><option value="">请选择</option><option>小规格计量管（20mL/0.2mL刻度）</option><option>中规格计量袋（200mL/5mL刻度）</option><option>大规格集水腔（100mL/1mL刻度）</option><option>其他</option></select></div>
+<div><label>计量开始时间</label><input id="measureStart" type="datetime-local" onchange="App.autoCalcInit()"></div>
+<div><label>计量结束时间</label><input id="measureEnd" type="datetime-local" onchange="App.autoCalcInit()"></div>
+<div><label>计量时长 <span style="font-weight:700">Δt</span> (min) <span style="color:#ef4444">*</span></label><input id="measureT" type="number" step="0.1" placeholder="计量持续时间" oninput="App.autoCalcInit()"></div>
+<div><label>收集水量 <span style="font-weight:700">V</span> (mL) <span style="color:#ef4444">*</span></label><input id="measureV" type="number" step="0.1" placeholder="从刻度读取收集水量" oninput="App.autoCalcInit()"></div>
+<div><label>滴水次数 <span style="font-weight:700">n</span>（次）<span style="color:#94a3b8;font-weight:400"> 滴水点时填写</span></label><input id="dripN" type="number" step="1" placeholder="目视计数滴水次数" oninput="App.autoCalcInit()"></div>
+<div><label>湿痕面积 <span style="font-weight:700">A₁</span> (m²) <span style="color:#94a3b8;font-weight:400"> 可选</span></label><input id="areaA1" type="number" step="0.01" placeholder="湿痕区域面积估算" oninput="App.autoCalcInit()"></div>
+<div><label>初检人员</label><input id="initInspector" placeholder="填写初检人员姓名"></div>
 </div>
+
+<div id="initCalcPanel" class="calc-panel initial">
+<div style="font-weight:700;color:#0f3b6a;margin-bottom:6px">📊 初检计算结果</div>
+<div class="calc-row"><span class="calc-label">单位时间出水量 Q₁</span><span class="calc-value" id="initQ1">—</span></div>
+<div class="calc-row"><span class="calc-label">滴水频率 f</span><span class="calc-value" id="initFreq">—</span></div>
+<div class="calc-row"><span class="calc-label">渗漏等级评估</span><span class="calc-value" id="initGrade">—</span></div>
+<div id="initAdvice" class="advice-card info"></div>
+</div>
+</div>
+
+<div class="card"><h2>三、复检信息 &amp; 自动计算</h2>
+<div class="grid">
+<div><label>复检时间</label><input id="reviewTime" type="datetime-local" onchange="App.autoCalcReview()"></div>
+<div><label>复检人员</label><input id="reviewBy" placeholder="填写复检人员姓名"></div>
+<div><label>复检计量时长 <span style="font-weight:700">Δt₂</span> (min) <span style="color:#ef4444">*</span></label><input id="reviewT2" type="number" step="0.1" placeholder="复检持续时间" oninput="App.autoCalcReview()"></div>
+<div><label>复检收集水量 <span style="font-weight:700">V₂</span> (mL) <span style="color:#ef4444">*</span></label><input id="reviewV2" type="number" step="0.1" placeholder="复检收集水量" oninput="App.autoCalcReview()"></div>
+<div><label>复检湿痕面积 <span style="font-weight:700">A₂</span> (m²) <span style="color:#94a3b8;font-weight:400"> 可选</span></label><input id="reviewAreaA2" type="number" step="0.01" placeholder="复检湿痕面积" oninput="App.autoCalcReview()"></div>
+<div><label>是否发现新漏/滴点</label><select id="newLeakOrDrip" onchange="App.autoCalcReview()"><option value="">请选择</option><option>否</option><option>是</option></select></div>
+<div><label>贴片状态 / 计量有效性</label><select id="validity" onchange="App.autoCalcReview()"><option value="有效：贴片未脱落、未溢流、边界未漏水">有效：贴片未脱落、未溢流、边界未漏水</option><option value="异常：贴片脱落">异常：贴片脱落</option><option value="异常：计量结构溢流">异常：计量结构溢流</option><option value="异常：边界漏水">异常：边界漏水</option><option value="异常：其他">异常：其他</option></select></div>
+</div>
+
+<div id="reviewCalcPanel" class="calc-panel review">
+<div style="font-weight:700;color:#0f3b6a;margin-bottom:6px">📊 复检对比计算结果</div>
+<div class="calc-row"><span class="calc-label">初检 Q₁</span><span class="calc-value" id="reviewQ1">—</span></div>
+<div class="calc-row"><span class="calc-label">复检 Q₂</span><span class="calc-value" id="reviewQ2">—</span></div>
+<div class="calc-row"><span class="calc-label">出水量变化 ΔQ</span><span class="calc-value" id="reviewDeltaQ">—</span></div>
+<div class="calc-row"><span class="calc-label">渗漏变化率 η</span><span class="calc-value highlight" id="reviewEta">—</span></div>
+<div class="calc-row"><span class="calc-label">湿痕面积变化率 ΔA</span><span class="calc-value" id="reviewDeltaA">—</span></div>
+<div class="calc-row"><span class="calc-label">复检结论</span><span class="calc-value" id="reviewConclusion">—</span></div>
+<div id="reviewAdvice" class="advice-card info"></div>
+</div>
+
+<!-- 处理记录区 -->
+<div id="treatmentBox" class="treatment-section">
+<h3>📝 现场处置记录</h3>
+<p style="font-size:13px;color:#64748b;margin-bottom:8px">请选择本次处理方式并填写处理说明：</p>
+<div class="treatment-options" id="treatmentBtns">
+<button class="observe" onclick="App.selectTreatment('observe')" id="btnObserve">🔍 继续观察</button>
+<button class="repair" onclick="App.selectTreatment('repair')" id="btnRepair">🔧 报修 / 上报</button>
+</div>
+<div style="display:none" id="treatmentDetail">
+<label>处理人员</label><input id="treatmentBy" placeholder="填写处理人员姓名">
+<label style="margin-top:8px">处理说明</label><textarea id="treatmentDesc" placeholder="请描述现场处理情况，如：已拍照记录，现场判断渗漏量较小，建议继续观察，下次复检周期7天。或：渗漏量明显增大，已上报工区，建议安排注浆修复。"></textarea>
+<div id="treatmentSummary" style="margin-top:8px;padding:8px 12px;border-radius:6px;font-size:13px"></div>
+</div>
+</div>
+</div>
+
+<div class="card"><h2>四、操作</h2>
 <div class="btn-row">
-<button class="amber" onclick="App.exportJSON()">📥 导出 JSON</button>
+<button class="primary" onclick="App.calcAll()">📐 全部计算</button>
+<button class="green" onclick="App.save()">💾 保存记录</button>
+<button class="amber" onclick="App.exportJSON()">📤 导出JSON</button>
 <button class="gray" onclick="App.clearForm()">🗑 清空表单</button>
 </div>
 <div id="calcResult" class="result-box" style="display:none"></div>
@@ -108,104 +184,326 @@ button.amber{background:#d97706}
 <div class="footer-note">数据保存在当前设备浏览器中 | 永久网址 | Gitee Pages 托管</div>
 </div>
 
+
+
+
+<div class="modal-overlay" id="confirmModal">
+<div class="modal">
+<h3>✅ 确认保存处置记录</h3>
+<div id="confirmContent" style="font-size:14px;line-height:1.8;margin-bottom:14px"></div>
+<div class="btn-row">
+<button class="gray" onclick="App.closeModal()">返回修改</button>
+<button class="green" onclick="App.confirmSave()">确认保存</button>
+</div>
+</div>
+</div>
+
 <script>
+﻿// Enhanced JS for tunnel leakage archive
 var App = (function() {
-  var $ = function(id) { return document.getElementById(id); };
-  var val = function(id) { return $(id).value.trim(); };
-  var num = function(id) { var v = parseFloat($(id).value); return isNaN(v) ? null : v; };
+  var fields = ["pointName","patchId","tunnelName","lineDirection","mileage","sectionPosition",
+    "foundTime","foundBy","locationDesc","leakType","patchSpec","measureStart","measureEnd",
+    "measureT","measureV","dripN","areaA1","initInspector",
+    "reviewTime","reviewBy","reviewT2","reviewV2","reviewAreaA2","newLeakOrDrip","validity",
+    "treatmentBy","treatmentDesc"];
+  var selectedTreatment = null;
 
-  var fields = ["pointName","patchId","tunnelName","lineDirection","mileage","sectionPosition","foundTime","foundBy","locationDesc","leakType","patchSpec","measureStart","measureEnd","measureT","measureV","dripN","areaA1","reviewTime","reviewBy","reviewT2","reviewV2","reviewAreaA2","newLeakOrDrip","validity","treatment","remark"];
-
-  function getKey() {
-    var pid = val("patchId");
-    var urlPid = new URLSearchParams(location.search).get("point_id");
-    return pid || urlPid || "unknown";
-  }
+  function $(id) { return document.getElementById(id); }
+  function val(id) { var e=$(id); return e?e.value:""; }
+  function num(id) { var v=val(id); return v===""?null:parseFloat(v); }
+  function byId(id) { var v=val(id); return v?v:""; }
+  function getKey() { return byId("patchId") || "default"; }
 
   function loadParams() {
     var p = new URLSearchParams(location.search);
-    var map = { point_id:"patchId", point_name:"pointName", tunnel:"tunnelName", line:"lineDirection", mileage:"mileage", section:"sectionPosition" };
-    Object.keys(map).forEach(function(k) { var v = p.get(k); if(v) $(map[k]).value = v; });
+    if (p.get("point_name")) $("pointName").value = p.get("point_name");
+    if (p.get("point_id")) $("patchId").value = p.get("point_id");
+    if (p.get("tunnel")) $("tunnelName").value = p.get("tunnel");
+    if (p.get("line")) $("lineDirection").value = p.get("line");
+    if (p.get("mileage")) $("mileage").value = p.get("mileage");
+    if (p.get("section")) $("sectionPosition").value = p.get("section");
   }
 
-  function loadHistory() {
-    var key = "leakage_" + getKey();
-    var list = JSON.parse(localStorage.getItem(key) || "[]");
-    var box = $("historyBox");
-    if (!list.length) { box.innerHTML = "暂无历史记录"; return; }
-    box.innerHTML = list.slice().reverse().map(function(item, i) {
-      var c = item.calc || {};
-      var cls = "badge-muted";
-      var txt = c.conclusion || "";
-      if (txt.indexOf("减轻")!==-1 || txt.indexOf("稳定")!==-1) cls = "badge-ok";
-      else if (txt.indexOf("轻度")!==-1 || txt.indexOf("异常")!==-1) cls = "badge-warn";
-      else if (txt.indexOf("加重")!==-1 || txt.indexOf("维修")!==-1) cls = "badge-danger";
-      return '<div class="history-item"><div class="row"><b>#' + (list.length-i) + ' | ' + new Date(item.savedAt).toLocaleString("zh-CN") + '</b><button class="del-btn" onclick="App.del(' + i + ')">删除</button></div>点位：' + (item.pointName||"-") + ' | 编号：' + (item.patchId||"-") + '<br>Q1：' + (c.q1!==null?c.q1.toFixed(3)+" mL/min":"-") + ' | Q2：' + (c.q2!==null?c.q2.toFixed(3)+" mL/min":"-") + '<br>η：' + (c.eta!==null?c.eta.toFixed(1)+"%":"-") + ' | 结论：<span class="badge ' + cls + '">' + (c.conclusion||"-") + '</span></div>';
-    }).join("");
+  function toast(msg) {
+    var t = $("toast"); t.textContent = msg; t.classList.add("show");
+    setTimeout(function() { t.classList.remove("show"); }, 2000);
   }
 
-  function calc() {
+  // ====== INITIAL INSPECTION AUTO CALC ======
+  function autoCalcInit() {
+    var t = num("measureT"), v = num("measureV"), n = num("dripN"), a1 = num("areaA1");
+    var leakType = val("leakType");
+    var panel = $("initCalcPanel");
+    var adviceEl = $("initAdvice");
+
+    if (!t || !v || t <= 0) {
+      panel.classList.remove("show");
+      adviceEl.classList.remove("show");
+      autoCalcReview();
+      return;
+    }
+
+    var q1 = v / t;
+    var f = (n !== null && n >= 0) ? n / t : null;
+
+    $("initQ1").textContent = q1.toFixed(3) + " mL/min";
+    $("initFreq").textContent = f !== null ? f.toFixed(2) + " \u6b21/min" : "\u4e0d\u9002\u7528\uff08\u975e\u6ef4\u6c34\u70b9\uff09";
+
+    var grade, gradeCls;
+    if (q1 < 0.5) { grade = "\u5fae\u91cf\u6e17\u6f0f\uff08\u2160\u7ea7\uff09"; gradeCls = "badge-ok"; }
+    else if (q1 < 2.0) { grade = "\u8f7b\u5fae\u6e17\u6f0f\uff08\u2161\u7ea7\uff09"; gradeCls = "badge-info"; }
+    else if (q1 < 5.0) { grade = "\u4e2d\u7b49\u6e17\u6f0f\uff08\u2162\u7ea7\uff09"; gradeCls = "badge-warn"; }
+    else { grade = "\u4e25\u91cd\u6e17\u6f0f\uff08\u2163\u7ea7\uff09"; gradeCls = "badge-danger"; }
+    $("initGrade").innerHTML = "<span class='badge " + gradeCls + "'>" + grade + "</span>";
+
+    var advice = "";
+    if (q1 >= 5.0) {
+      advice = "\u26a0\ufe0f \u6e17\u6f0f\u91cf\u8f83\u5927\uff08\u22655 mL/min\uff09\uff0c\u5efa\u8bae\u4f18\u5148\u5b89\u6392\u590d\u68c0\uff0c\u590d\u68c0\u5468\u671f\u4e0d\u8d85\u8fc77\u5929\u3002";
+      adviceEl.className = "advice-card danger show";
+    } else if (q1 >= 2.0) {
+      advice = "\u26a1 \u4e2d\u7b49\u6e17\u6f0f\uff0c\u5efa\u8bae7-14\u5929\u5185\u5b89\u6392\u590d\u68c0\uff0c\u6301\u7eed\u76d1\u6d4b\u53d8\u5316\u8d8b\u52bf\u3002";
+      adviceEl.className = "advice-card warn show";
+    } else {
+      advice = "\u2705 \u6e17\u6f0f\u91cf\u8f83\u5c0f\uff0c\u53ef\u7eb3\u5165\u5e38\u89c4\u5de1\u68c0\u8ba1\u5212\uff0c\u5efa\u8bae14-30\u5929\u5185\u590d\u68c0\u3002";
+      adviceEl.className = "advice-card ok show";
+    }
+    if (leakType === "\u95f4\u6b47\u6ef4\u6c34" || leakType === "\u8fde\u7eed\u6ef4\u6c34" || leakType === "\u7ebf\u6d41" || leakType === "\u660e\u663e\u6d41\u6c34") {
+      advice += " \u6ce8\u610f\uff1a\u8be5\u70b9\u4f4d\u5b58\u5728\u660e\u663e\u6ef4\u6c34/\u6d41\u6c34\u73b0\u8c61\uff0c\u5e94\u5173\u6ce8\u5bf9\u9053\u5e8a\u548c\u9644\u5c5e\u8bbe\u65bd\u7684\u5f71\u54cd\u3002";
+    }
+    adviceEl.textContent = advice;
+    panel.classList.add("show");
+
+    autoCalcReview();
+  }
+
+  // ====== REVIEW AUTO CALC ======
+  function autoCalcReview() {
+    var t1 = num("measureT"), v1 = num("measureV");
+    var t2 = num("reviewT2"), v2 = num("reviewV2");
+    var a1 = num("areaA1"), a2 = num("reviewAreaA2");
+    var validity = val("validity"), newLeak = val("newLeakOrDrip");
+    var panel = $("reviewCalcPanel");
+    var adviceEl = $("reviewAdvice");
+    var treatmentBox = $("treatmentBox");
+
+    if (!t1 || !v1 || t1 <= 0) {
+      panel.classList.remove("show");
+      adviceEl.classList.remove("show");
+      treatmentBox.classList.remove("show");
+      return;
+    }
+
+    var q1 = v1 / t1;
+    $("reviewQ1").textContent = q1.toFixed(3) + " mL/min";
+
+    if (!t2 || !v2 || t2 <= 0) {
+      $("reviewQ2").textContent = "\u2014";
+      $("reviewDeltaQ").textContent = "\u2014";
+      $("reviewEta").textContent = "\u2014";
+      $("reviewDeltaA").textContent = "\u2014";
+      $("reviewConclusion").innerHTML = "<span class='badge badge-muted'>\u8bf7\u586b\u5199\u590d\u68c0\u6570\u636e</span>";
+      panel.classList.add("show");
+      adviceEl.classList.remove("show");
+      treatmentBox.classList.remove("show");
+      return;
+    }
+
+    var q2 = v2 / t2;
+    var deltaQ = q2 - q1;
+    var eta = ((q2 - q1) / q1) * 100;
+    var areaR = null;
+    if (a1 !== null && a2 !== null && a1 > 0) { areaR = ((a2 - a1) / a1) * 100; }
+
+    $("reviewQ2").textContent = q2.toFixed(3) + " mL/min";
+    $("reviewDeltaQ").textContent = (deltaQ >= 0 ? "+" : "") + deltaQ.toFixed(3) + " mL/min";
+    $("reviewEta").textContent = eta.toFixed(1) + "%";
+    $("reviewDeltaA").textContent = areaR !== null ? areaR.toFixed(1) + "%" : "\u672a\u586b\u5199";
+
+    var conclusion, cls, advice, adviceCls;
+    var TH1 = 20, TH2 = 50, MIN_DELTA = 0.05;
+
+    if (validity.indexOf("\u5f02\u5e38") !== -1) {
+      conclusion = "\u8ba1\u91cf\u5f02\u5e38\uff0c\u5efa\u8bae\u91cd\u65b0\u5b89\u88c5\u8d34\u7247\u590d\u6d4b";
+      cls = "badge-warn";
+      advice = "\u8d34\u7247\u8ba1\u91cf\u72b6\u6001\u5f02\u5e38\uff0c\u672c\u6b21\u6570\u636e\u4e0d\u53ef\u9760\u3002\u8bf7\u68c0\u67e5\u8d34\u7247\u7c98\u8d34\u60c5\u51b5\uff0c\u5fc5\u8981\u65f6\u66f4\u6362\u65b0\u8d34\u7247\u91cd\u65b0\u8ba1\u91cf\u3002";
+      adviceCls = "warn";
+    } else if (newLeak === "\u662f") {
+      conclusion = "\u53d1\u73b0\u65b0\u6f0f/\u6ef4\u70b9\uff0c\u6e17\u6f0f\u52a0\u91cd";
+      cls = "badge-danger";
+      advice = "\u73b0\u573a\u786e\u8ba4\u5b58\u5728\u65b0\u7684\u6f0f\u70b9\u6216\u6ef4\u6c34\u70b9\uff0c\u6e17\u6f0f\u8303\u56f4\u6269\u5927\u3002\u5efa\u8bae\u7acb\u5373\u4e0a\u62a5\uff0c\u5b89\u6392\u4e13\u9879\u68c0\u6d4b\u548c\u7ef4\u4fee\u65b9\u6848\u3002";
+      adviceCls = "danger";
+    } else if (eta > TH2) {
+      conclusion = "\u660e\u663e\u52a0\u91cd\uff08\u03b7>" + TH2 + "%\uff09\uff0c\u5efa\u8bae\u7ef4\u4fee";
+      cls = "badge-danger";
+      advice = "\u6e17\u6f0f\u53d8\u5316\u7387\u8d85\u8fc7" + TH2 + "%\uff0c\u6e17\u6f0f\u91cf\u663e\u8457\u589e\u5927\u3002\u5efa\u8bae\uff1a\u2460\u7acb\u5373\u4e0a\u62a5\u5de5\u533a\uff1b\u2461\u5b89\u6392\u6ce8\u6d46\u4fee\u590d\u6216\u5bfc\u6392\u5904\u7406\uff1b\u2462\u7f29\u77ed\u540e\u7eed\u76d1\u6d4b\u5468\u671f\u81f33-7\u5929\u3002";
+      adviceCls = "danger";
+    } else if (eta > TH1) {
+      conclusion = "\u8f7b\u5ea6\u52a0\u91cd\uff08" + TH1 + "%<\u03b7\u2264" + TH2 + "%\uff09\uff0c\u5efa\u8bae\u7f29\u77ed\u590d\u68c0\u5468\u671f";
+      cls = "badge-warn";
+      advice = "\u6e17\u6f0f\u91cf\u5448\u589e\u5927\u8d8b\u52bf\u4f46\u672a\u8fbe\u4e25\u91cd\u9608\u503c\u3002\u5efa\u8bae\uff1a\u2460\u7f29\u77ed\u590d\u68c0\u5468\u671f\u81f37-14\u5929\uff1b\u2461\u5173\u6ce8\u5929\u6c14\u53d8\u5316\u5bf9\u6e17\u6f0f\u7684\u5f71\u54cd\uff1b\u2462\u82e5\u6301\u7eed\u52a0\u91cd\u5e94\u53ca\u65f6\u4e0a\u62a5\u3002";
+      adviceCls = "warn";
+    } else if (eta < -TH1) {
+      conclusion = "\u6e17\u6f0f\u51cf\u8f7b\uff08\u03b7<-" + TH1 + "%\uff09";
+      cls = "badge-ok";
+      advice = "\u6e17\u6f0f\u91cf\u660e\u663e\u51cf\u5c11\uff0c\u8d8b\u52bf\u5411\u597d\u3002\u5efa\u8bae\u4fdd\u6301\u73b0\u6709\u89c2\u5bdf\u5468\u671f\uff0c\u7ee7\u7eed\u8ddf\u8e2a\u786e\u8ba4\u6e17\u6f0f\u662f\u5426\u6301\u7eed\u51cf\u8f7b\u3002";
+      adviceCls = "ok";
+    } else if (Math.abs(deltaQ) < MIN_DELTA) {
+      conclusion = "\u57fa\u672c\u7a33\u5b9a\uff08\u0394Q<0.05mL/min\uff0c|\u03b7|\u2264" + TH1 + "%\uff09";
+      cls = "badge-ok";
+      advice = "\u6e17\u6f0f\u72b6\u6001\u57fa\u672c\u7a33\u5b9a\uff0c\u65e0\u663e\u8457\u53d8\u5316\u3002\u5efa\u8bae\u6309\u5e38\u89c4\u5468\u671f\u7ee7\u7eed\u89c2\u5bdf\uff0c\u4e0b\u6b21\u590d\u68c0\u53ef\u9002\u5f53\u5ef6\u957f\u81f314-30\u5929\u3002";
+      adviceCls = "ok";
+    } else {
+      conclusion = "\u57fa\u672c\u7a33\u5b9a\uff08|\u03b7|\u2264" + TH1 + "%\uff09\uff0c\u5efa\u8bae\u7ee7\u7eed\u89c2\u5bdf";
+      cls = "badge-ok";
+      advice = "\u6e17\u6f0f\u53d8\u5316\u5728\u53ef\u63a5\u53d7\u8303\u56f4\u5185\u3002\u5efa\u8bae\u7ee7\u7eed\u5b9a\u671f\u89c2\u5bdf\uff0c\u4fdd\u6301\u73b0\u6709\u590d\u68c0\u5468\u671f\u3002\u6ce8\u610f\u8bb0\u5f55\u5929\u6c14\u3001\u65bd\u5de5\u7b49\u5916\u90e8\u56e0\u7d20\u3002";
+      adviceCls = "ok";
+    }
+
+    if (areaR !== null && areaR > 20) {
+      conclusion += "\uff1b\u6e7f\u75d5\u9762\u79ef\u6269\u5927";
+      if (cls !== "badge-danger") cls = "badge-warn";
+      advice += " \u6b64\u5916\uff0c\u6e7f\u75d5\u9762\u79ef\u589e\u5927\u4e86" + areaR.toFixed(1) + "%\uff0c\u8868\u660e\u6e17\u6f0f\u5f71\u54cd\u8303\u56f4\u5728\u6269\u5927\uff0c\u9700\u5f15\u8d77\u5173\u6ce8\u3002";
+    }
+
+    $("reviewConclusion").innerHTML = "<span class='badge " + cls + "'>" + conclusion + "</span>";
+    adviceEl.textContent = advice;
+    adviceEl.className = "advice-card " + adviceCls + " show";
+    panel.classList.add("show");
+    treatmentBox.classList.add("show");
+  }
+
+  // ====== TREATMENT SELECTION ======
+  function selectTreatment(type) {
+    selectedTreatment = type;
+    $("btnObserve").classList.remove("selected");
+    $("btnRepair").classList.remove("selected");
+    if (type === "observe") $("btnObserve").classList.add("selected");
+    else $("btnRepair").classList.add("selected");
+    $("treatmentDetail").style.display = "block";
+    var summary = $("treatmentSummary");
+    if (type === "observe") {
+      summary.innerHTML = "<span style='color:#16a34a'>\ud83d\udccb \u5df2\u9009\u62e9\uff1a\u7ee7\u7eed\u89c2\u5bdf</span> \u2014 \u8be5\u70b9\u4f4d\u5c06\u7eb3\u5165\u5e38\u89c4\u5de1\u68c0\u8ba1\u5212\uff0c\u8bf7\u5728\u4e0b\u65b9\u8bf4\u660e\u89c2\u5bdf\u5468\u671f\u548c\u6ce8\u610f\u4e8b\u9879\u3002";
+    } else {
+      summary.innerHTML = "<span style='color:#dc2626'>\ud83d\udea8 \u5df2\u9009\u62e9\uff1a\u62a5\u4fee/\u4e0a\u62a5</span> \u2014 \u8be5\u70b9\u4f4d\u5c06\u6807\u8bb0\u4e3a\u9700\u7ef4\u4fee\uff0c\u8bf7\u5728\u4e0b\u65b9\u8bf4\u660e\u4e0a\u62a5\u6e20\u9053\u548c\u5efa\u8bae\u4fee\u590d\u65b9\u6848\u3002";
+    }
+  }
+
+  // ====== CALC ALL ======
+  function calcAll() {
+    autoCalcInit();
+    autoCalcReview();
+    var panel = $("initCalcPanel");
+    if (!panel.classList.contains("show")) {
+      alert("\u8bf7\u5148\u586b\u5199\u521d\u68c0\u90e8\u5206\u7684\u8ba1\u91cf\u65f6\u957f\u548c\u6536\u96c6\u6c34\u91cf\u3002");
+      return;
+    }
     var t = num("measureT"), v = num("measureV"), n = num("dripN"), a1 = num("areaA1");
     var t2 = num("reviewT2"), v2 = num("reviewV2"), a2 = num("reviewAreaA2");
-    var validity = val("validity"), newLeak = val("newLeakOrDrip");
-    if (!t || !v) { alert("请至少填写计量时长 t 和收集水量 V。"); return; }
-    var q1 = v / t, f = n !== null ? n / t : null;
-    var html = "<b>初次单位时间出水量 Q1：</b>" + q1.toFixed(3) + " mL/min<br>";
-    if (f !== null) html += "<b>滴水频率 f：</b>" + f.toFixed(2) + " 次/min<br>";
-    var q2 = null, eta = null, areaR = null, conclusion = "初次建档", cls = "badge-muted";
+    var q1 = v/t, f = n!==null ? n/t : null;
+    var html = "<b>\ud83d\udcd0 \u8ba1\u7b97\u6c47\u603b</b><br>";
+    html += "<b>\u521d\u68c0 Q\u2081\uff1a</b>" + q1.toFixed(3) + " mL/min<br>";
+    if (f !== null) html += "<b>\u6ef4\u6c34\u9891\u7387 f\uff1a</b>" + f.toFixed(2) + " \u6b21/min<br>";
     if (t2 && v2) {
-      q2 = v2 / t2; eta = ((q2 - q1) / q1) * 100;
-      html += "<b>复检单位时间出水量 Q2：</b>" + q2.toFixed(3) + " mL/min<br><b>出水量变化率 η：</b>" + eta.toFixed(1) + " %<br>";
-      if (a1 !== null && a2 !== null && a1 > 0) { areaR = ((a2 - a1) / a1) * 100; html += "<b>湿痕面积变化率 ΔA：</b>" + areaR.toFixed(1) + " %<br>"; }
-      if (validity.indexOf("异常") !== -1) { conclusion = "计量异常，建议重新安装贴片复测"; cls = "badge-warn"; }
-      else if (newLeak === "是") { conclusion = "渗漏加重，建议维修或专项检查"; cls = "badge-danger"; }
-      else if (eta > 50) { conclusion = "明显加重，建议维修"; cls = "badge-danger"; }
-      else if (eta > 20) { conclusion = "轻度加重，建议缩短复检周期"; cls = "badge-warn"; }
-      else if (eta < -20) { conclusion = "渗漏减轻"; cls = "badge-ok"; }
-      else { conclusion = "基本稳定，建议继续观察"; cls = "badge-ok"; }
+      var q2 = v2/t2, eta = ((q2-q1)/q1)*100;
+      html += "<b>\u590d\u68c0 Q\u2082\uff1a</b>" + q2.toFixed(3) + " mL/min<br>";
+      html += "<b>\u53d8\u5316\u7387 \u03b7\uff1a</b>" + eta.toFixed(1) + "%<br>";
+      if (a1 !== null && a2 !== null && a1 > 0) {
+        html += "<b>\u6e7f\u75d5\u9762\u79ef\u53d8\u5316\u7387 \u0394A\uff1a</b>" + (((a2-a1)/a1)*100).toFixed(1) + "%<br>";
+      }
+      html += "<b>\u7ed3\u8bba\uff1a</b>" + ($("reviewConclusion").innerHTML || "\u2014");
     }
-    html += "<b>复检结论：</b><span class='badge " + cls + "'>" + conclusion + "</span>";
     var box = $("calcResult"); box.innerHTML = html; box.style.display = "block";
   }
 
+  // ====== DATA COLLECTION ======
   function collect() {
-    var data = {}; fields.forEach(function(id) { data[id] = val(id); });
+    var data = {};
+    fields.forEach(function(id) { data[id] = val(id); });
     var t = num("measureT"), v = num("measureV"), n = num("dripN"), a1 = num("areaA1");
     var t2 = num("reviewT2"), v2 = num("reviewV2"), a2 = num("reviewAreaA2");
     var validity = val("validity"), newLeak = val("newLeakOrDrip");
-    var q1 = null, q2 = null, f = null, eta = null, areaR = null, conclusion = "初次建档";
-    if (t && v) { q1 = v / t; if (n !== null) f = n / t;
-      if (t2 && v2) { q2 = v2 / t2; eta = ((q2 - q1) / q1) * 100; if (a1 !== null && a2 !== null && a1 > 0) areaR = ((a2 - a1) / a1) * 100;
-        if (validity.indexOf("异常")!==-1) conclusion = "计量异常，建议重新安装贴片复测";
-        else if (newLeak==="是") conclusion = "渗漏加重，建议维修或专项检查";
-        else if (eta>50) conclusion = "明显加重，建议维修";
-        else if (eta>20) conclusion = "轻度加重，建议缩短复检周期";
-        else if (eta<-20) conclusion = "渗漏减轻";
-        else conclusion = "基本稳定，建议继续观察";
+    var q1 = null, q2 = null, f = null, eta = null, areaR = null, conclusion = "\u521d\u6b21\u5efa\u6863", cls = "badge-muted";
+    var gradeQ1 = null;
+    if (t && v && t > 0) {
+      q1 = v / t; if (n !== null) f = n / t;
+      if (q1 < 0.5) gradeQ1 = "\u2160\u7ea7"; else if (q1 < 2.0) gradeQ1 = "\u2161\u7ea7"; else if (q1 < 5.0) gradeQ1 = "\u2162\u7ea7"; else gradeQ1 = "\u2163\u7ea7";
+      if (t2 && v2 && t2 > 0) {
+        q2 = v2 / t2; eta = ((q2 - q1) / q1) * 100;
+        if (a1 !== null && a2 !== null && a1 > 0) areaR = ((a2 - a1) / a1) * 100;
+        if (validity.indexOf("\u5f02\u5e38")!==-1) { conclusion = "\u8ba1\u91cf\u5f02\u5e38\uff0c\u5efa\u8bae\u91cd\u65b0\u5b89\u88c5\u8d34\u7247\u590d\u6d4b"; cls = "badge-warn"; }
+        else if (newLeak==="\u662f") { conclusion = "\u53d1\u73b0\u65b0\u6f0f/\u6ef4\u70b9\uff0c\u6e17\u6f0f\u52a0\u91cd"; cls = "badge-danger"; }
+        else if (eta>50) { conclusion = "\u660e\u663e\u52a0\u91cd\uff08\u03b7>50%\uff09\uff0c\u5efa\u8bae\u7ef4\u4fee"; cls = "badge-danger"; }
+        else if (eta>20) { conclusion = "\u8f7b\u5ea6\u52a0\u91cd\uff0820%<\u03b7\u226450%\uff09\uff0c\u5efa\u8bae\u7f29\u77ed\u590d\u68c0\u5468\u671f"; cls = "badge-warn"; }
+        else if (eta<-20) { conclusion = "\u6e17\u6f0f\u51cf\u8f7b\uff08\u03b7<-20%\uff09"; cls = "badge-ok"; }
+        else { conclusion = "\u57fa\u672c\u7a33\u5b9a\uff08|\u03b7|\u226420%\uff09\uff0c\u5efa\u8bae\u7ee7\u7eed\u89c2\u5bdf"; cls = "badge-ok"; }
       }
     }
-    data.calc = { q1:q1, q2:q2, f:f, eta:eta, areaRate:areaR, conclusion:conclusion };
+    data.calc = { q1:q1, q2:q2, f:f, eta:eta, areaRate:areaR, conclusion:conclusion, conclusionCls:cls, gradeQ1:gradeQ1 };
+    data.treatment = { type: selectedTreatment, by: val("treatmentBy"), desc: val("treatmentDesc") };
     data.savedAt = new Date().toISOString();
     return data;
   }
 
+  // ====== SAVE ======
   function save() {
+    autoCalcInit(); autoCalcReview();
+    if ($("treatmentBox").classList.contains("show") && !selectedTreatment) {
+      var hasDesc = val("treatmentDesc") || val("treatmentBy");
+      if (hasDesc) { alert("\u8bf7\u5148\u9009\u62e9\u5904\u7406\u65b9\u5f0f\uff08\u7ee7\u7eed\u89c2\u5bdf / \u62a5\u4fee\uff09\u3002"); return; }
+    }
     var data = collect();
+    if (data.calc.q2 !== null && !selectedTreatment) { showConfirmModal(data); return; }
+    doSave(data);
+  }
+
+  function showConfirmModal(data) {
+    $("confirmContent").innerHTML = "<p><b>\u590d\u68c0\u7ed3\u8bba\uff1a</b>" + (data.calc.conclusion||"\u2014") + "</p><p style='color:#d97706;margin-top:8px'>\u26a0\ufe0f \u5c1a\u672a\u586b\u5199\u73b0\u573a\u5904\u7f6e\u8bb0\u5f55\u3002\u662f\u5426\u76f4\u63a5\u4fdd\u5b58\uff08\u4e0d\u542b\u5904\u7f6e\u8bb0\u5f55\uff09\uff1f</p><p style='font-size:12px;color:#94a3b8;margin-top:4px'>\u5efa\u8bae\u586b\u5199\u5904\u7406\u65b9\u5f0f\u548c\u8bf4\u660e\u540e\u518d\u4fdd\u5b58\u3002</p>";
+    $("confirmModal").classList.add("show");
+    window._pendingData = data;
+  }
+
+  function closeModal() { $("confirmModal").classList.remove("show"); window._pendingData = null; }
+  function confirmSave() {
+    $("confirmModal").classList.remove("show");
+    if (window._pendingData) { doSave(window._pendingData); window._pendingData = null; }
+  }
+
+  function doSave(data) {
     var key = "leakage_" + getKey();
     var list = JSON.parse(localStorage.getItem(key) || "[]");
     list.push(data);
     localStorage.setItem(key, JSON.stringify(list));
-    loadHistory();
-    alert("已保存到本机浏览器！");
+    loadHistory(); toast("\u2705 \u5df2\u4fdd\u5b58\u5230\u672c\u673a\u6d4f\u89c8\u5668\uff01");
+  }
+
+  // ====== HISTORY ======
+  function loadHistory() {
+    var key = "leakage_" + getKey();
+    var list = JSON.parse(localStorage.getItem(key) || "[]");
+    var box = $("historyBox");
+    if (!list.length) { box.innerHTML = "\u6682\u65e0\u5386\u53f2\u8bb0\u5f55"; return; }
+    box.innerHTML = list.slice().reverse().map(function(item, i) {
+      var c = item.calc || {}, t = item.treatment || {};
+      var cls = "badge-muted", txt = c.conclusion || "";
+      if (txt.indexOf("\u51cf\u8f7b")!==-1 || txt.indexOf("\u7a33\u5b9a")!==-1) cls = "badge-ok";
+      else if (txt.indexOf("\u8f7b\u5ea6")!==-1 || txt.indexOf("\u5f02\u5e38")!==-1) cls = "badge-warn";
+      else if (txt.indexOf("\u52a0\u91cd")!==-1 || txt.indexOf("\u7ef4\u4fee")!==-1) cls = "badge-danger";
+      var th = "";
+      if (t.type) {
+        th = "<br><span class='treatment-note " + (t.type==="observe"?"observe":"repair") + "'>" + (t.type==="observe"?"\ud83d\udd0d \u7ee7\u7eed\u89c2\u5bdf":"\ud83d\udd27 \u62a5\u4fee/\u4e0a\u62a5") + "</span>";
+        if (t.by) th += " \u5904\u7406\u4eba\uff1a" + t.by;
+      }
+      return '<div class="history-item"><div class="row"><b>#' + (list.length-i) + ' | ' + new Date(item.savedAt).toLocaleString("zh-CN") + '</b><button class="del-btn" onclick="App.del(' + i + ')">\u5220\u9664</button></div>\u70b9\u4f4d\uff1a' + (item.pointName||"-") + ' | \u7f16\u53f7\uff1a' + (item.patchId||"-") + '<br>Q\u2081\uff1a' + (c.q1!==null?c.q1.toFixed(3)+" mL/min":"-") + ' | Q\u2082\uff1a' + (c.q2!==null?c.q2.toFixed(3)+" mL/min":"-") + '<br>\u03b7\uff1a' + (c.eta!==null?c.eta.toFixed(1)+"%":"-") + (c.gradeQ1?" | \u7b49\u7ea7\uff1a"+c.gradeQ1:"") + ' | \u7ed3\u8bba\uff1a<span class="badge ' + cls + '">' + (c.conclusion||"-") + '</span>' + th + '</div>';
+    }).join("");
   }
 
   function del(idx) {
-    if (!confirm("确认删除该条记录？")) return;
+    if (!confirm("\u786e\u8ba4\u5220\u9664\u8be5\u6761\u8bb0\u5f55\uff1f")) return;
     var key = "leakage_" + getKey();
     var list = JSON.parse(localStorage.getItem(key) || "[]");
     list.splice(list.length - 1 - idx, 1);
     localStorage.setItem(key, JSON.stringify(list));
-    loadHistory();
+    loadHistory(); toast("\u5df2\u5220\u9664\u8bb0\u5f55");
   }
 
   function exportJSON() {
@@ -214,17 +512,28 @@ var App = (function() {
     var blob = new Blob([JSON.stringify({point_id:getKey(),history:list},null,2)], {type:"application/json;charset=utf-8"});
     var a = document.createElement("a"); a.href = URL.createObjectURL(blob);
     a.download = getKey() + ".json"; a.click(); URL.revokeObjectURL(a.href);
+    toast("\ud83d\udce4 \u5bfc\u51fa\u6210\u529f");
   }
 
   function clearForm() {
-    if (!confirm("确认清空当前表单？已保存记录不受影响。")) return;
-    fields.forEach(function(id) { $(id).value = ""; });
+    if (!confirm("\u786e\u8ba4\u6e05\u7a7a\u5f53\u524d\u8868\u5355\uff1f\u5df2\u4fdd\u5b58\u8bb0\u5f55\u4e0d\u53d7\u5f71\u54cd\u3002")) return;
+    fields.forEach(function(id) { var e=$(id); if(e){ if(e.tagName==="SELECT") e.selectedIndex=0; else e.value=""; } });
+    $("initCalcPanel").classList.remove("show"); $("initAdvice").classList.remove("show");
+    $("reviewCalcPanel").classList.remove("show"); $("reviewAdvice").classList.remove("show");
+    $("treatmentBox").classList.remove("show"); $("treatmentDetail").style.display = "none";
     $("calcResult").style.display = "none";
+    selectedTreatment = null;
+    $("btnObserve").classList.remove("selected"); $("btnRepair").classList.remove("selected");
+    toast("\u8868\u5355\u5df2\u6e05\u7a7a");
   }
 
   loadParams(); loadHistory();
-  return { calc:calc, save:save, del:del, exportJSON:exportJSON, clearForm:clearForm };
+  if (val("patchId")) { autoCalcInit(); }
+  return { calcAll:calcAll, autoCalcInit:autoCalcInit, autoCalcReview:autoCalcReview, selectTreatment:selectTreatment, save:save, del:del, exportJSON:exportJSON, clearForm:clearForm, closeModal:closeModal, confirmSave:confirmSave };
 })();
+
 </script>
+﻿</script>
 </body>
 </html>
+
