@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -43,6 +44,13 @@ button.amber{background:#d97706}
 .toast.show{opacity:1}
 
 
+.photo-preview{margin-top:6px;display:none}
+.photo-preview.show{display:block}
+.photo-preview img{max-width:100%;max-height:200px;border-radius:8px;border:1px solid #d1d9e6;cursor:pointer}
+.photo-thumb{width:72px;height:72px;object-fit:cover;border-radius:6px;border:1px solid #d1d9e6;margin-right:4px;cursor:pointer;vertical-align:middle}
+.photo-fullscreen{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:2000;display:none;align-items:center;justify-content:center;padding:16px;cursor:pointer}
+.photo-fullscreen.show{display:flex}
+.photo-fullscreen img{max-width:95vw;max-height:95vh;border-radius:8px}
 </style>
 
 /* ====== 计算面板 ====== */
@@ -117,7 +125,12 @@ button.amber{background:#d97706}
 <div><label>计量时长 <span style="font-weight:700">Δt</span> (min) <span style="color:#ef4444">*</span></label><input id="measureT" type="number" step="0.1" placeholder="计量持续时间" oninput="App.autoCalcInit()"></div>
 <div><label>收集水量 <span style="font-weight:700">V</span> (mL) <span style="color:#ef4444">*</span></label><input id="measureV" type="number" step="0.1" placeholder="从刻度读取收集水量" oninput="App.autoCalcInit()"></div>
 <div><label>滴水次数 <span style="font-weight:700">n</span>（次）<span style="color:#94a3b8;font-weight:400"> 滴水点时填写</span></label><input id="dripN" type="number" step="1" placeholder="目视计数滴水次数" oninput="App.autoCalcInit()"></div>
-<div><label>湿痕面积 <span style="font-weight:700">A₁</span> (m²) <span style="color:#94a3b8;font-weight:400"> 可选</span></label><input id="areaA1" type="number" step="0.01" placeholder="湿痕区域面积估算" oninput="App.autoCalcInit()"></div>
+<div><label>初检湿痕照片 <span style="color:#94a3b8;font-weight:400"> 可选（手机拍照或选择照片）</span></label>
+<div style="display:flex;gap:8px;align-items:center">
+<input id="initPhotoInput" type="file" accept="image/*" capture="environment" onchange="App.handleInitPhoto(this)" style="flex:1;padding:8px;font-size:13px">
+<button type="button" onclick="App.clearInitPhoto()" style="flex:0;padding:8px 12px;font-size:12px;background:#e2e8f0;color:#475569;border-radius:6px;white-space:nowrap">清除</button>
+</div>
+<div class="photo-preview" id="initPhotoPreview"><img id="initPhotoImg" onclick="App.viewFullPhoto(this.src)"></div></div>
 <div><label>初检人员</label><input id="initInspector" placeholder="填写初检人员姓名"></div>
 </div>
 
@@ -136,7 +149,12 @@ button.amber{background:#d97706}
 <div><label>复检人员</label><input id="reviewBy" placeholder="填写复检人员姓名"></div>
 <div><label>复检计量时长 <span style="font-weight:700">Δt₂</span> (min) <span style="color:#ef4444">*</span></label><input id="reviewT2" type="number" step="0.1" placeholder="复检持续时间" oninput="App.autoCalcReview()"></div>
 <div><label>复检收集水量 <span style="font-weight:700">V₂</span> (mL) <span style="color:#ef4444">*</span></label><input id="reviewV2" type="number" step="0.1" placeholder="复检收集水量" oninput="App.autoCalcReview()"></div>
-<div><label>复检湿痕面积 <span style="font-weight:700">A₂</span> (m²) <span style="color:#94a3b8;font-weight:400"> 可选</span></label><input id="reviewAreaA2" type="number" step="0.01" placeholder="复检湿痕面积" oninput="App.autoCalcReview()"></div>
+<div><label>复检湿痕照片 <span style="color:#94a3b8;font-weight:400"> 可选（手机拍照或选择照片）</span></label>
+<div style="display:flex;gap:8px;align-items:center">
+<input id="reviewPhotoInput" type="file" accept="image/*" capture="environment" onchange="App.handleReviewPhoto(this)" style="flex:1;padding:8px;font-size:13px">
+<button type="button" onclick="App.clearReviewPhoto()" style="flex:0;padding:8px 12px;font-size:12px;background:#e2e8f0;color:#475569;border-radius:6px;white-space:nowrap">清除</button>
+</div>
+<div class="photo-preview" id="reviewPhotoPreview"><img id="reviewPhotoImg" onclick="App.viewFullPhoto(this.src)"></div></div>
 <div><label>是否发现新漏/滴点</label><select id="newLeakOrDrip" onchange="App.autoCalcReview()"><option value="">请选择</option><option>否</option><option>是</option></select></div>
 <div><label>贴片状态 / 计量有效性</label><select id="validity" onchange="App.autoCalcReview()"><option value="有效：贴片未脱落、未溢流、边界未漏水">有效：贴片未脱落、未溢流、边界未漏水</option><option value="异常：贴片脱落">异常：贴片脱落</option><option value="异常：计量结构溢流">异常：计量结构溢流</option><option value="异常：边界漏水">异常：边界漏水</option><option value="异常：其他">异常：其他</option></select></div>
 </div>
@@ -147,7 +165,7 @@ button.amber{background:#d97706}
 <div class="calc-row"><span class="calc-label">复检 Q₂</span><span class="calc-value" id="reviewQ2">—</span></div>
 <div class="calc-row"><span class="calc-label">出水量变化 ΔQ</span><span class="calc-value" id="reviewDeltaQ">—</span></div>
 <div class="calc-row"><span class="calc-label">渗漏变化率 η</span><span class="calc-value highlight" id="reviewEta">—</span></div>
-<div class="calc-row"><span class="calc-label">湿痕面积变化率 ΔA</span><span class="calc-value" id="reviewDeltaA">—</span></div>
+
 <div class="calc-row"><span class="calc-label">复检结论</span><span class="calc-value" id="reviewConclusion">—</span></div>
 <div id="reviewAdvice" class="advice-card info"></div>
 </div>
@@ -203,8 +221,8 @@ button.amber{background:#d97706}
 var App = (function() {
   var fields = ["pointName","patchId","tunnelName","lineDirection","mileage","sectionPosition",
     "foundTime","foundBy","locationDesc","leakType","patchSpec","measureStart","measureEnd",
-    "measureT","measureV","dripN","areaA1","initInspector",
-    "reviewTime","reviewBy","reviewT2","reviewV2","reviewAreaA2","newLeakOrDrip","validity",
+    "measureT","measureV","dripN","initInspector",
+    "reviewTime","reviewBy","reviewT2","reviewV2","newLeakOrDrip","validity",
     "treatmentBy","treatmentDesc"];
   var selectedTreatment = null;
 
@@ -229,9 +247,66 @@ var App = (function() {
     setTimeout(function() { t.classList.remove("show"); }, 2000);
   }
 
+  // ====== PHOTO HANDLING ======
+  function compressImage(file, maxW, quality, callback) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var img = new Image();
+      img.onload = function() {
+        var canvas = document.createElement("canvas");
+        var w = img.width, h = img.height;
+        if (w > maxW) { h = h * maxW / w; w = maxW; }
+        canvas.width = w; canvas.height = h;
+        var ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, w, h);
+        callback(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function handleInitPhoto(input) {
+    var file = input.files[0];
+    if (!file) return;
+    compressImage(file, 1200, 0.7, function(dataUrl) {
+      window._initPhotoData = dataUrl;
+      $("initPhotoImg").src = dataUrl;
+      $("initPhotoPreview").classList.add("show");
+    });
+  }
+
+  function handleReviewPhoto(input) {
+    var file = input.files[0];
+    if (!file) return;
+    compressImage(file, 1200, 0.7, function(dataUrl) {
+      window._reviewPhotoData = dataUrl;
+      $("reviewPhotoImg").src = dataUrl;
+      $("reviewPhotoPreview").classList.add("show");
+    });
+  }
+
+  function clearInitPhoto() {
+    window._initPhotoData = null;
+    $("initPhotoInput").value = "";
+    $("initPhotoPreview").classList.remove("show");
+  }
+
+  function clearReviewPhoto() {
+    window._reviewPhotoData = null;
+    $("reviewPhotoInput").value = "";
+    $("reviewPhotoPreview").classList.remove("show");
+  }
+
+  function viewFullPhoto(src) {
+    $("photoFullImg").src = src;
+    $("photoFullscreen").classList.add("show");
+  }
+
+
   // ====== INITIAL INSPECTION AUTO CALC ======
   function autoCalcInit() {
-    var t = num("measureT"), v = num("measureV"), n = num("dripN"), a1 = num("areaA1");
+    var t = num("measureT"), v = num("measureV"), n = num("dripN");
     var leakType = val("leakType");
     var panel = $("initCalcPanel");
     var adviceEl = $("initAdvice");
@@ -280,7 +355,6 @@ var App = (function() {
   function autoCalcReview() {
     var t1 = num("measureT"), v1 = num("measureV");
     var t2 = num("reviewT2"), v2 = num("reviewV2");
-    var a1 = num("areaA1"), a2 = num("reviewAreaA2");
     var validity = val("validity"), newLeak = val("newLeakOrDrip");
     var panel = $("reviewCalcPanel");
     var adviceEl = $("reviewAdvice");
@@ -300,7 +374,6 @@ var App = (function() {
       $("reviewQ2").textContent = "\u2014";
       $("reviewDeltaQ").textContent = "\u2014";
       $("reviewEta").textContent = "\u2014";
-      $("reviewDeltaA").textContent = "\u2014";
       $("reviewConclusion").innerHTML = "<span class='badge badge-muted'>\u8bf7\u586b\u5199\u590d\u68c0\u6570\u636e</span>";
       panel.classList.add("show");
       adviceEl.classList.remove("show");
@@ -311,13 +384,10 @@ var App = (function() {
     var q2 = v2 / t2;
     var deltaQ = q2 - q1;
     var eta = ((q2 - q1) / q1) * 100;
-    var areaR = null;
-    if (a1 !== null && a2 !== null && a1 > 0) { areaR = ((a2 - a1) / a1) * 100; }
 
     $("reviewQ2").textContent = q2.toFixed(3) + " mL/min";
     $("reviewDeltaQ").textContent = (deltaQ >= 0 ? "+" : "") + deltaQ.toFixed(3) + " mL/min";
     $("reviewEta").textContent = eta.toFixed(1) + "%";
-    $("reviewDeltaA").textContent = areaR !== null ? areaR.toFixed(1) + "%" : "\u672a\u586b\u5199";
 
     var conclusion, cls, advice, adviceCls;
     var TH1 = 20, TH2 = 50, MIN_DELTA = 0.05;
@@ -359,12 +429,6 @@ var App = (function() {
       adviceCls = "ok";
     }
 
-    if (areaR !== null && areaR > 20) {
-      conclusion += "\uff1b\u6e7f\u75d5\u9762\u79ef\u6269\u5927";
-      if (cls !== "badge-danger") cls = "badge-warn";
-      advice += " \u6b64\u5916\uff0c\u6e7f\u75d5\u9762\u79ef\u589e\u5927\u4e86" + areaR.toFixed(1) + "%\uff0c\u8868\u660e\u6e17\u6f0f\u5f71\u54cd\u8303\u56f4\u5728\u6269\u5927\uff0c\u9700\u5f15\u8d77\u5173\u6ce8\u3002";
-    }
-
     $("reviewConclusion").innerHTML = "<span class='badge " + cls + "'>" + conclusion + "</span>";
     adviceEl.textContent = advice;
     adviceEl.className = "advice-card " + adviceCls + " show";
@@ -397,8 +461,8 @@ var App = (function() {
       alert("\u8bf7\u5148\u586b\u5199\u521d\u68c0\u90e8\u5206\u7684\u8ba1\u91cf\u65f6\u957f\u548c\u6536\u96c6\u6c34\u91cf\u3002");
       return;
     }
-    var t = num("measureT"), v = num("measureV"), n = num("dripN"), a1 = num("areaA1");
-    var t2 = num("reviewT2"), v2 = num("reviewV2"), a2 = num("reviewAreaA2");
+    var t = num("measureT"), v = num("measureV"), n = num("dripN");
+    var t2 = num("reviewT2"), v2 = num("reviewV2");
     var q1 = v/t, f = n!==null ? n/t : null;
     var html = "<b>\ud83d\udcd0 \u8ba1\u7b97\u6c47\u603b</b><br>";
     html += "<b>\u521d\u68c0 Q\u2081\uff1a</b>" + q1.toFixed(3) + " mL/min<br>";
@@ -419,17 +483,16 @@ var App = (function() {
   function collect() {
     var data = {};
     fields.forEach(function(id) { data[id] = val(id); });
-    var t = num("measureT"), v = num("measureV"), n = num("dripN"), a1 = num("areaA1");
-    var t2 = num("reviewT2"), v2 = num("reviewV2"), a2 = num("reviewAreaA2");
+    var t = num("measureT"), v = num("measureV"), n = num("dripN");
+    var t2 = num("reviewT2"), v2 = num("reviewV2");
     var validity = val("validity"), newLeak = val("newLeakOrDrip");
-    var q1 = null, q2 = null, f = null, eta = null, areaR = null, conclusion = "\u521d\u6b21\u5efa\u6863", cls = "badge-muted";
+    var q1 = null, q2 = null, f = null, eta = null, conclusion = "\u521d\u6b21\u5efa\u6863", cls = "badge-muted";
     var gradeQ1 = null;
     if (t && v && t > 0) {
       q1 = v / t; if (n !== null) f = n / t;
       if (q1 < 0.5) gradeQ1 = "\u2160\u7ea7"; else if (q1 < 2.0) gradeQ1 = "\u2161\u7ea7"; else if (q1 < 5.0) gradeQ1 = "\u2162\u7ea7"; else gradeQ1 = "\u2163\u7ea7";
       if (t2 && v2 && t2 > 0) {
         q2 = v2 / t2; eta = ((q2 - q1) / q1) * 100;
-        if (a1 !== null && a2 !== null && a1 > 0) areaR = ((a2 - a1) / a1) * 100;
         if (validity.indexOf("\u5f02\u5e38")!==-1) { conclusion = "\u8ba1\u91cf\u5f02\u5e38\uff0c\u5efa\u8bae\u91cd\u65b0\u5b89\u88c5\u8d34\u7247\u590d\u6d4b"; cls = "badge-warn"; }
         else if (newLeak==="\u662f") { conclusion = "\u53d1\u73b0\u65b0\u6f0f/\u6ef4\u70b9\uff0c\u6e17\u6f0f\u52a0\u91cd"; cls = "badge-danger"; }
         else if (eta>50) { conclusion = "\u660e\u663e\u52a0\u91cd\uff08\u03b7>50%\uff09\uff0c\u5efa\u8bae\u7ef4\u4fee"; cls = "badge-danger"; }
@@ -438,7 +501,8 @@ var App = (function() {
         else { conclusion = "\u57fa\u672c\u7a33\u5b9a\uff08|\u03b7|\u226420%\uff09\uff0c\u5efa\u8bae\u7ee7\u7eed\u89c2\u5bdf"; cls = "badge-ok"; }
       }
     }
-    data.calc = { q1:q1, q2:q2, f:f, eta:eta, areaRate:areaR, conclusion:conclusion, conclusionCls:cls, gradeQ1:gradeQ1 };
+    data.calc = { q1:q1, q2:q2, f:f, eta:eta, conclusion:conclusion, conclusionCls:cls, gradeQ1:gradeQ1 };
+    data.photos = { initPhoto: window._initPhotoData || null, reviewPhoto: window._reviewPhotoData || null };
     data.treatment = { type: selectedTreatment, by: val("treatmentBy"), desc: val("treatmentDesc") };
     data.savedAt = new Date().toISOString();
     return data;
@@ -493,7 +557,7 @@ var App = (function() {
         th = "<br><span class='treatment-note " + (t.type==="observe"?"observe":"repair") + "'>" + (t.type==="observe"?"\ud83d\udd0d \u7ee7\u7eed\u89c2\u5bdf":"\ud83d\udd27 \u62a5\u4fee/\u4e0a\u62a5") + "</span>";
         if (t.by) th += " \u5904\u7406\u4eba\uff1a" + t.by;
       }
-      return '<div class="history-item"><div class="row"><b>#' + (list.length-i) + ' | ' + new Date(item.savedAt).toLocaleString("zh-CN") + '</b><button class="del-btn" onclick="App.del(' + i + ')">\u5220\u9664</button></div>\u70b9\u4f4d\uff1a' + (item.pointName||"-") + ' | \u7f16\u53f7\uff1a' + (item.patchId||"-") + '<br>Q\u2081\uff1a' + (c.q1!==null?c.q1.toFixed(3)+" mL/min":"-") + ' | Q\u2082\uff1a' + (c.q2!==null?c.q2.toFixed(3)+" mL/min":"-") + '<br>\u03b7\uff1a' + (c.eta!==null?c.eta.toFixed(1)+"%":"-") + (c.gradeQ1?" | \u7b49\u7ea7\uff1a"+c.gradeQ1:"") + ' | \u7ed3\u8bba\uff1a<span class="badge ' + cls + '">' + (c.conclusion||"-") + '</span>' + th + '</div>';
+      var photosHtml = ""; var ph = item.photos || {}; if (ph.initPhoto) { photosHtml += "<img src='" + ph.initPhoto + "' class='photo-thumb' onclick='App.viewFullPhoto(this.src)' title='初检照片'>"; } if (ph.reviewPhoto) { photosHtml += "<img src='" + ph.reviewPhoto + "' class='photo-thumb' onclick='App.viewFullPhoto(this.src)' title='复检照片'>"; } return '<div class="history-item"><div class="row"><b>#' + (list.length-i) + ' | ' + new Date(item.savedAt).toLocaleString("zh-CN") + '</b><button class="del-btn" onclick="App.del(' + i + ')">\u5220\u9664</button></div>\u70b9\u4f4d\uff1a' + (item.pointName||"-") + ' | \u7f16\u53f7\uff1a' + (item.patchId||"-") + '<br>Q\u2081\uff1a' + (c.q1!==null?c.q1.toFixed(3)+" mL/min":"-") + ' | Q\u2082\uff1a' + (c.q2!==null?c.q2.toFixed(3)+" mL/min":"-") + '<br>\u03b7\uff1a' + (c.eta!==null?c.eta.toFixed(1)+"%":"-") + (c.gradeQ1?" | \u7b49\u7ea7\uff1a"+c.gradeQ1:"") + ' | \u7ed3\u8bba\uff1a<span class="badge ' + cls + '">' + (c.conclusion||"-") + '</span>' + th + photosHtml + '</div>';
     }).join("");
   }
 
@@ -518,6 +582,7 @@ var App = (function() {
   function clearForm() {
     if (!confirm("\u786e\u8ba4\u6e05\u7a7a\u5f53\u524d\u8868\u5355\uff1f\u5df2\u4fdd\u5b58\u8bb0\u5f55\u4e0d\u53d7\u5f71\u54cd\u3002")) return;
     fields.forEach(function(id) { var e=$(id); if(e){ if(e.tagName==="SELECT") e.selectedIndex=0; else e.value=""; } });
+    clearInitPhoto(); clearReviewPhoto();
     $("initCalcPanel").classList.remove("show"); $("initAdvice").classList.remove("show");
     $("reviewCalcPanel").classList.remove("show"); $("reviewAdvice").classList.remove("show");
     $("treatmentBox").classList.remove("show"); $("treatmentDetail").style.display = "none";
@@ -529,11 +594,13 @@ var App = (function() {
 
   loadParams(); loadHistory();
   if (val("patchId")) { autoCalcInit(); }
-  return { calcAll:calcAll, autoCalcInit:autoCalcInit, autoCalcReview:autoCalcReview, selectTreatment:selectTreatment, save:save, del:del, exportJSON:exportJSON, clearForm:clearForm, closeModal:closeModal, confirmSave:confirmSave };
+  return { calcAll:calcAll, autoCalcInit:autoCalcInit, autoCalcReview:autoCalcReview, selectTreatment:selectTreatment, save:save, del:del, exportJSON:exportJSON, clearForm:clearForm, closeModal:closeModal, confirmSave:confirmSave, handleInitPhoto:handleInitPhoto, handleReviewPhoto:handleReviewPhoto, clearInitPhoto:clearInitPhoto, clearReviewPhoto:clearReviewPhoto, viewFullPhoto:viewFullPhoto };
 })();
 
 </script>
 ﻿</script>
+
+<div class="photo-fullscreen" id="photoFullscreen" onclick="this.classList.remove('show')"><img id="photoFullImg"></div>
 </body>
 </html>
 
